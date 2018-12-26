@@ -1,0 +1,51 @@
+{
+  "name": "sputnik-server",
+  "version": "0.0.1",
+  "description": "Backend Node/Express server for SputnikApp",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rcmaples/sputnik-server.git"
+  },
+  "keywords": [
+    "Node",
+    "Express",
+    "MongoDB",
+    "Mongoose",
+    "Mocha",
+    "Chai"
+  ],
+  "author": "RC Maples",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rcmaples/sputnik-server/issues"
+  },
+  "homepage": "https://github.com/rcmaples/sputnik-server#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bcryptjs": "^2.4.3",
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.0",
+    "cors": "^2.8.5",
+    "expect": "^23.6.0",
+    "express": "^4.16.4",
+    "faker": "^4.1.0",
+    "is-empty": "^1.2.0",
+    "jsonwebtoken": "^8.4.0",
+    "lodash.get": "^4.4.2",
+    "lodash.isboolean": "^3.0.3",
+    "lodash.pick": "^4.4.0",
+    "mocha": "^5.2.0",
+    "mongodb": "^3.1.10",
+    "mongoose": "^5.4.1",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.9",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "validator": "^10.10.0"
+  }
+}

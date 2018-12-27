@@ -13,15 +13,10 @@ const TRUNCATE_THRESHOLD = 10,
   REVEALED_CHARS = 3,
   REPLACEMENT = '***';
 
-const {
-  GITHUB_CLIENT_ID,
-  GITHUB_CLIENT_SECRET
-} = require('../../config/github');
-
 const authorize = (code, callback) => {
   let data = {
-    client_id: GITHUB_CLIENT_ID,
-    client_secret: GITHUB_CLIENT_SECRET,
+    client_id: process.env.GITHUB_CLIENT_ID,
+    client_secret: process.env.GITHUB_CLIENT_SECRET,
     code: code
   };
 

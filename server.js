@@ -3,6 +3,7 @@ if (process.env.NODE_ENV === 'dev') require('dotenv').config();
 require('./config/config');
 
 const express = require('express');
+const passport = require('passport');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const jsonValidator = require('./middleware/jsonValidator');
@@ -18,6 +19,10 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(jsonValidator);
 app.use(express.static('public'));
+
+require('./config/passport')(passport);
+require('./routes/api/users')(app);
+require('./routes/api/github')(app);
 
 function runServer() {
   const port = process.env.PORT || 3000;

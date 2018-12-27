@@ -6,7 +6,7 @@ const chaiHttp = require('chai-http');
 const faker = require('faker');
 const { app, runServer, closeServer } = require('../server');
 const { JWT_SECRET, JWT_EXPIRY } = require('../config/config');
-const { User } = require('../models/user');
+const { User } = require('../models/User');
 
 chai.use(chaiHttp);
 
@@ -26,10 +26,12 @@ function tearDownDB() {
 }
 
 function createFakeUser() {
+  let password = faker.internet.password();
   return {
     name: `${faker.name.firstName()} ${faker.name.lastName()}`,
     email: faker.internet.email(),
-    password: faker.internet.password()
+    password: password,
+    password2: password
   };
 }
 
@@ -45,7 +47,7 @@ describe('\n========================\nAuthentication Endpoints\n================
     await closeServer();
   });
 
-  describe('\n----------\nPOST /signup\n----------\n', () => {
+  describe('\n----------\nPOST /api/users/register\n----------\n', () => {
     // Create a user for our tests
 
     testUser = createFakeUser();
@@ -74,54 +76,41 @@ describe('\n========================\nAuthentication Endpoints\n================
         });
     });
 
-    it('Should fail if no password is presented', function() {
-      return chai
-        .request(app)
-        .post('/signup')
-        .send({
-          email: 'email@tests.com',
-          password: ''
-        })
-        .then(res => {
-          expect(res).to.have.status(422);
-          expect(res.body).to.be.an('Object');
-          expect(res.body).to.have.keys('code', 'message', 'reason');
-          expect(res.body.message).to.equal(
-            'You must provide a username and password.'
-          );
-          expect(res.body.reason).to.equal('ValidationError');
-        });
-    });
-
     it('Should create a user for a proper request', function() {
       return chai
         .request(app)
-        .post('/signup')
+        .post('/api/users/register')
         .send(testUser)
         .then(res => {
           jwtToken = res.body.token;
           expect(res).to.have.status(200);
           expect(res.body).to.be.an('Object');
-          expect(res.body).to.have.key('token');
+          expect(res.body).to.have.keys(
+            '_id',
+            'name',
+            'email',
+            'password',
+            'date',
+            '__v'
+          );
         });
     });
 
     it('Should fail is the email addess is already in use', function() {
       return chai
         .request(app)
-        .post('/signup')
+        .post('/api/users/register')
         .send(testUser)
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body).to.be.an('Object');
-          expect(res.body).to.have.keys('code', 'message', 'reason');
-          expect(res.body.message).to.equal('Email address is already in use.');
-          expect(res.body.reason).to.equal('ValidationError');
+          expect(res.body).to.have.key('email');
+          expect(res.body.email).to.equal('Email already exists');
         });
     });
   });
 
-  describe('\n----------\nPOST /signin\n----------\n', () => {
+  describe('\n----------\nPOST /api/users/login\n----------\n', () => {
     //test signin route
     const signInBadEmail = {
       email: 'not@good.com',
@@ -141,48 +130,49 @@ describe('\n========================\nAuthentication Endpoints\n================
     it('Should fail if email is incorrect', function() {
       return chai
         .request(app)
-        .post('/signin')
+        .post('/api/users/login')
         .send(signInBadEmail)
         .then(res => {
-          expect(res).to.have.status(401);
+          expect(res).to.have.status(404);
         });
     });
 
     it('Should fail is password is incorrect', function() {
       return chai
         .request(app)
-        .post('/signin')
+        .post('/api/users/login')
         .send(signInBadPass)
         .then(res => {
-          expect(res).to.have.status(401);
+          expect(res).to.have.status(400);
         });
     });
 
     it('Should succeed if credientals are correct', function() {
       return chai
         .request(app)
-        .post('/signin')
+        .post('/api/users/login')
         .send(testUser)
         .then(res => {
           expect(res).to.have.status(200);
           expect(res.body).to.be.an('Object');
-          expect(res.body).to.have.key('token');
+          expect(res.body).to.have.keys('token', 'success');
         });
     });
   });
 
-  describe('\n----------\nPOST /refresh\n----------\n', () => {
-    // test refresh route
-    it('Should succeed in providing a new token', function() {
-      return chai
-        .request(app)
-        .post('/refresh')
-        .set('Authorization', `Bearer ${jwtToken}`)
-        .then(res => {
-          expect(res).to.have.status(200);
-          expect(res.body).to.be.an('Object');
-          expect(res.body).to.have.key('token');
-        });
-    });
-  });
+  // Future Use
+  // describe('\n----------\nPOST /refresh\n----------\n', () => {
+  //   // test refresh route
+  //   it('Should succeed in providing a new token', function() {
+  //     return chai
+  //       .request(app)
+  //       .post('/refresh')
+  //       .set('Authorization', `Bearer ${jwtToken}`)
+  //       .then(res => {
+  //         expect(res).to.have.status(200);
+  //         expect(res.body).to.be.an('Object');
+  //         expect(res.body).to.have.key('token');
+  //       });
+  //   });
+  // });
 });

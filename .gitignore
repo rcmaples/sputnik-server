@@ -62,3 +62,8 @@ typings/
 
 # Apple Files
 .DS_Store
+
+# Config
+config/keys.js
+config/github.js
+config/config.js

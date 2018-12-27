@@ -66,4 +66,3 @@ typings/
 # Config
 config/keys.js
 config/github.js
-config/config.js

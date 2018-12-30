@@ -7,6 +7,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const jsonValidator = require('./middleware/jsonValidator');
+const cors = require('cors');
 let server;
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ mongoose.set('useFindAndModify', false);
 
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cors);
 app.use(jsonValidator);
 app.use(express.static('public'));
 

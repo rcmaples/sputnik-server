@@ -6,7 +6,7 @@ let env = process.env.NODE_ENV || 'dev';
 
 if (env === 'dev') {
   process.env.DATABASE_URI = process.env.MLAB_URI_DEV;
-  process.env.PORT = 8080;
+  process.env.PORT = 5000;
 } else if (env === 'test') {
   process.env.DATABASE_URI = 'mongodb://localhost:27017/test-sputnik-db';
 } else if (env === 'production') {

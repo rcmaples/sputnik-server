@@ -9,10 +9,6 @@ const _ = {
   isboolean: require('lodash.isboolean')
 };
 
-const TRUNCATE_THRESHOLD = 10,
-  REVEALED_CHARS = 3,
-  REPLACEMENT = '***';
-
 const authorize = (code, callback) => {
   let data = {
     client_id: process.env.GITHUB_CLIENT_ID,
@@ -28,7 +24,6 @@ const authorize = (code, callback) => {
       }
     })
     .then(response => {
-      // console.log('axios response: \n\t', response.data);
       callback(response);
     })
     .catch(err => {
@@ -43,34 +38,14 @@ app.all('*', function(req, res, next) {
   next();
 });
 
-/**
- * Handles logging to the console.
- * Logged values can be sanitized before they are logged
- *
- * @param {string} label - label for the log message
- * @param {Object||string} value - the actual log message, can be a string or a plain object
- * @param {boolean} sanitized - should the value be sanitized before logging?
- */
-function log(label, value, sanitized) {
-  value = value || '';
-  if (sanitized) {
-    if (typeof value === 'string' && value.length > TRUNCATE_THRESHOLD) {
-      console.log(label, value.substring(REVEALED_CHARS, 0) + REPLACEMENT);
-    } else {
-      console.log(label, REPLACEMENT);
-    }
-  } else {
-    console.log(label, value);
-  }
-}
-
 module.exports = app => {
-  app.get('/api/github/authorize/:code', (req, res) => {
-    let code = req.params.code;
-    log('authenticating code: ', code, false);
+  // app.get('/api/github/authorize/:code', (req, res) => {
+  app.get('/api/github/authorize/', (req, res) => {
+
+    let code = req.query.code;
+
     authorize(code, response => {
       let result = {};
-      console.log(response.data);
       let { access_token, error, error_description } = response.data;
       if (!access_token) {
         result = {

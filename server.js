@@ -1,5 +1,5 @@
 'use strict';
-if (process.env.NODE_ENV === 'dev') require('dotenv').config();
+if (process.env.NODE_ENV === 'development') require('dotenv').config();
 require('./config/config');
 
 const express = require('express');
@@ -11,7 +11,7 @@ const cors = require('cors');
 let server;
 const app = express();
 const port = process.env.PORT || 3000;
-console.log(process.env.DATABASE_URI);
+
 mongoose.Promise = global.Promise;
 mongoose.set('useCreateIndex', true);
 mongoose.set('useFindAndModify', false);

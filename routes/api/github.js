@@ -58,7 +58,7 @@ module.exports = app => {
     (req, res) => {
       let code = req.params.code;
       authorize(code, response => {
-        console.log(`response data: `, response.data);
+        // console.log(`response data: `, response.data);
         let {
           access_token,
           error,

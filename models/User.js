@@ -28,4 +28,13 @@ const UserSchema = new Schema({
   }
 });
 
+UserSchema.methods.serialize = function() {
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    github_access_token: this.github_access_token
+  };
+};
+
 module.exports = User = mongoose.model('users', UserSchema);

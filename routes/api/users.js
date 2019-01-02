@@ -2,7 +2,9 @@
 // const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const _ = {
+  get: require('lodash.get')
+};
 const passport = require('passport');
 
 // Load input validation
@@ -68,6 +70,8 @@ module.exports = app => {
         return res.status(404).json({ emailnotfound: 'Email not found' });
       }
 
+      let github_access_token = user.github_access_token;
+
       // Check password
       bcrypt.compare(password, user.password).then(isMatch => {
         if (isMatch) {
@@ -88,7 +92,8 @@ module.exports = app => {
             (err, token) => {
               res.json({
                 success: true,
-                token: 'Bearer ' + token
+                token: 'Bearer ' + token,
+                github_access_token: github_access_token
               });
             }
           );
@@ -110,6 +115,44 @@ module.exports = app => {
         name: req.user.name,
         email: req.user.email
       });
+    }
+  );
+
+  app.patch(
+    '/api/users/token',
+    passport.authenticate('jwt', { session: false }),
+    (req, res) => {
+      const token = _.get(req.body, ['github_access_token']);
+      const userID = req.user.id;
+      // console.log(userID);
+      User.findById(userID)
+        .then(user => {
+          // console.log(user);
+          if (user._id != userID) {
+            return res.status(422).send('Unauthorized');
+          }
+
+          User.findByIdAndUpdate(
+            userID,
+            {
+              $set: { github_access_token: token }
+            },
+            { new: true }
+          )
+            .then(user => {
+              if (!user) {
+                return res.status(404).send('User not found');
+              }
+              return res.status(200).send(user.serialize());
+            })
+            .catch(err => {
+              res.status(400).send({ err });
+            });
+        })
+        .catch(err => {
+          res.status(400).send({ err });
+        });
+      // console.log(token);
     }
   );
 };

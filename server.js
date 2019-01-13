@@ -25,6 +25,7 @@ app.use(express.static('public'));
 require('./config/passport')(passport);
 require('./routes/api/users')(app);
 require('./routes/api/github')(app);
+require('./routes/api/target-users')(app);
 
 function runServer() {
   const port = process.env.PORT || 3000;

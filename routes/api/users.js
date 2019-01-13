@@ -8,6 +8,7 @@ const _ = {
   isboolean: require('lodash.isboolean')
 };
 const passport = require('passport');
+const jwtAuth = passport.authenticate('jwt', { session: false });
 const { ObjectID } = require('MongoDB');
 
 // Load input validation
@@ -19,10 +20,6 @@ const User = require('../../models/User');
 const { Repo } = require('../../models/Repo');
 const { Event } = require('../../models/Event');
 const { TargetUser } = require('../../models/TargetUser');
-
-module.exports = app => {
-  // api here.
-};
 
 module.exports = app => {
   app.post('/api/users/register', (req, res) => {
@@ -116,53 +113,87 @@ module.exports = app => {
     });
   });
 
-  app.get(
-    '/api/users/currentuser',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => {
-      res.json({
-        id: req.user.id,
-        name: req.user.name,
-        email: req.user.email
+  app.get('/api/users/currentuser', jwtAuth, (req, res) => {
+    res.json({
+      id: req.user.id,
+      name: req.user.name,
+      email: req.user.email
+    });
+  });
+
+  app.patch('/api/users/token', jwtAuth, (req, res) => {
+    const token = _.get(req.body, ['github_access_token']);
+    const userID = req.user.id;
+    // console.log(userID);
+    User.findById(userID)
+      .then(user => {
+        // console.log(user);
+        if (user._id != userID) {
+          return res.status(422).send('Unauthorized');
+        }
+
+        User.findByIdAndUpdate(
+          userID,
+          {
+            $set: { github_access_token: token }
+          },
+          { new: true }
+        )
+          .then(user => {
+            if (!user) {
+              return res.status(404).send('User not found');
+            }
+            return res.status(200).send(user.serialize());
+          })
+          .catch(err => {
+            res.status(400).send({ err });
+          });
+      })
+      .catch(err => {
+        res.status(400).send({ err });
       });
-    }
-  );
+    // console.log(token);
+  });
 
-  app.patch(
-    '/api/users/token',
-    passport.authenticate('jwt', { session: false }),
-    (req, res) => {
-      const token = _.get(req.body, ['github_access_token']);
-      const userID = req.user.id;
-      // console.log(userID);
-      User.findById(userID)
-        .then(user => {
-          // console.log(user);
-          if (user._id != userID) {
-            return res.status(422).send('Unauthorized');
+  app.patch('/api/users/urls', jwtAuth, (req, res) => {
+    const userID = req.user.id;
+    const {
+      following_url,
+      starred_url,
+      subscriptions_url,
+      repos_url,
+      events_url,
+      avatar_url
+    } = req.body;
+
+    User.findById(userID)
+      .then(user => {
+        if (user._id != userID) {
+          return res.status(422).send('Unauthorized');
+        }
+
+        User.findByIdAndUpdate(userID, {
+          $set: {
+            following_url: following_url,
+            starred_url: starred_url,
+            subscriptions_url: subscriptions_url,
+            repos_url: repos_url,
+            events_url: events_url,
+            avatar_url: avatar_url
           }
-
-          User.findByIdAndUpdate(
-            userID,
-            {
-              $set: { github_access_token: token }
-            },
-            { new: true }
-          )
-            .then(user => {
-              if (!user) {
-                return res.status(404).send('User not found');
-              }
-              return res.status(200).send(user.serialize());
-            })
-            .catch(err => {
-              res.status(400).send({ err });
-            });
         })
-        .catch(err => {
-          res.status(400).send({ err });
-        });
-      // console.log(token);
-    }
-  );
+          .then(user => {
+            if (!user) {
+              return res.status(404).send('User not found');
+            }
+            return res.status(200).send(user.serialize());
+          })
+          .catch(err => {
+            res.status(400).send({ err });
+          });
+      })
+      .catch(err => {
+        res.status(400).send({ err });
+      });
+  });
 };

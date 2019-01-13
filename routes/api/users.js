@@ -1,18 +1,28 @@
+'use strict';
 // const express = require('express');
 // const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const _ = {
-  get: require('lodash.get')
+  get: require('lodash.get'),
+  isboolean: require('lodash.isboolean')
 };
 const passport = require('passport');
+const { ObjectID } = require('MongoDB');
 
 // Load input validation
 const validateRegisterInput = require('../../validation/register');
 const validateLoginInput = require('../../validation/login');
 
-// Load User model
+// Load models
 const User = require('../../models/User');
+const { Repo } = require('../../models/Repo');
+const { Event } = require('../../models/Event');
+const { TargetUser } = require('../../models/TargetUser');
+
+module.exports = app => {
+  // api here.
+};
 
 module.exports = app => {
   app.post('/api/users/register', (req, res) => {

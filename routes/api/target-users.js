@@ -15,12 +15,8 @@ const { TargetUser } = require('../../models/TargetUser');
 module.exports = app => {
   // api here.
   app.get('/api/target-users', jwtAuth, (req, res) => {
-
-    
     res.json({
-      id: req.user.id,
-      name: req.user.name,
-      email: req.user.email
+      req
     });
   });
 };

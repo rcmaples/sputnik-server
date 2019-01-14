@@ -64,6 +64,9 @@ const UserSchema = new Schema({
   },
   repos_list: {
     type: Array
+  },
+  following_list: {
+    type: Array
   }
 });
 
@@ -81,7 +84,8 @@ UserSchema.methods.serialize = function() {
     avatar_url: this.avatar_url,
     starred_list: this.starred_list,
     subscriptions_list: this.subscriptions_list,
-    repos_list: this.repos_list
+    repos_list: this.repos_list,
+    following_list: this.following_list
   };
 };
 

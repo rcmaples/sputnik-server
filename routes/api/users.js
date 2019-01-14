@@ -196,4 +196,42 @@ module.exports = app => {
         res.status(400).send({ err });
       });
   });
+
+  app.patch('/api/users/following', jwtAuth, (req, res) => {
+    let body = req.body;
+    const userID = req.user.id;
+
+    User.findById(userID)
+      .then(user => {
+        if (user._id != userID) {
+          return res.status(422).send('Unauthorized');
+        }
+
+        let following_list = [];
+
+        for (let key in body) {
+          if (body.hasOwnProperty(key)) {
+            following_list.push(body[key].id);
+          }
+        }
+
+        User.findByIdAndUpdate(userID, {
+          $set: {
+            following_list: following_list
+          }
+        })
+          .then(user => {
+            if (!user) {
+              return res.status(404).send('User not found');
+            }
+            return res.status(200).send(user.serialize());
+          })
+          .catch(err => {
+            res.status(400).send({ err });
+          });
+      })
+      .catch(err => {
+        res.status(400).send({ err });
+      });
+  });
 };

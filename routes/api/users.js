@@ -9,7 +9,7 @@ const _ = {
 };
 const passport = require('passport');
 const jwtAuth = passport.authenticate('jwt', { session: false });
-const { ObjectID } = require('MongoDB');
+// const { ObjectID } = require('MongoDB');
 
 // Load input validation
 const validateRegisterInput = require('../../validation/register');

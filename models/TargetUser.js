@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const TargetUserSchema = Schema(
   {
-    id: {
+    github_id: {
       type: Number,
       required: true,
       trim: true,
@@ -50,7 +50,7 @@ const TargetUserSchema = Schema(
 
 TargetUserSchema.methods.serialize = function() {
   return {
-    id: this.id,
+    github_id: this.github_id,
     login: this.login,
     avatar_url: this.avatar_url,
     html_url: this.html_url,

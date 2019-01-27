@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+require('mongoose-long')(mongoose);
+const SchemaTypes = mongoose.Schema.Types;
 
 const TargetUserSchema = Schema(
   {
     github_id: {
-      type: Number,
+      type: SchemaTypes.Long,
       required: true,
       trim: true,
       minlength: 1,

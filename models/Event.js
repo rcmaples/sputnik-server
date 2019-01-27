@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
+require('mongoose-long')(mongoose);
 const Schema = mongoose.Schema;
+const SchemaTypes = mongoose.Schema.Types;
 
 const EventSchema = Schema(
   {
     id: {
-      type: Number,
+      type: SchemaTypes.Long,
       trim: true,
       unique: true,
       required: true
@@ -16,7 +18,7 @@ const EventSchema = Schema(
     },
     actor: {
       id: {
-        type: Number,
+        type: SchemaTypes.Long,
         trim: true,
         required: true
       },
@@ -35,6 +37,7 @@ const EventSchema = Schema(
       type: Boolean,
       required: true
     },
+    payload: [],
     created_at: {
       type: Date
     }

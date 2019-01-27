@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+require('mongoose-long')(mongoose);
+const SchemaTypes = mongoose.Schema.Types;
 
 const RepoSchema = new Schema(
   {
     id: {
-      type: Number,
+      type: SchemaTypes.Long,
       required: true,
       trim: true,
       minlength: 1,
@@ -19,7 +21,7 @@ const RepoSchema = new Schema(
     },
     owner: {
       id: {
-        type: Number,
+        type: SchemaTypes.Long,
         required: true,
         trim: true,
         minlength: 1,

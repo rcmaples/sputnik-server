@@ -17,8 +17,28 @@ const Repo = require('../../models/Repo');
 const Event = require('../../models/Event');
 const TargetUser = require('../../models/TargetUser');
 
-const handleEvents = (response, callback) => {
-  console.log(response);
+const handleEvents = async (events, callback) => {
+  for (let item of events) {
+    await Event.findOne({ id: item.id }).then(async event => {
+      if (!event) {
+        const newEvent = new Event({
+          id: item.id,
+          type: item.type,
+          actor: item.actor,
+          repo: item.repo,
+          payload: item.payload,
+          public: item.public,
+          created_at: item.created_at
+        });
+        await newEvent
+          .save()
+          .then(event => callback(event.id))
+          .catch(error => {
+            throw new Error(error);
+          });
+      }
+    });
+  }
 };
 
 module.exports = app => {
@@ -55,7 +75,7 @@ module.exports = app => {
               console.log(targetUser.events_url);
               axios
                 .get(targetUser.events_url)
-                .then(response => {
+                .then(async response => {
                   const events = _.filter(response.data, event => {
                     return event.type === 'CreateEvent' ||
                       event.type === 'FollowEvent' ||
@@ -68,31 +88,21 @@ module.exports = app => {
                       : false;
                   });
 
+                  // console.log(events);
+
                   const remaining = response.headers['x-ratelimit-remaining'];
-                  console.log(events);
+                  let eventIds = [];
+                  // console.log('eventIds before `he`: ', eventIds);
                   // Add Events from above into MongoDB
-                  for (let item of events) {
-                    Event.findOne({ id: item.id }).then(event => {
-                      if (!event) {
-                        console.log(item);
-                        const newEvent = new Event({
-                          id: item.id,
-                          type: item.type,
-                          actor: item.actor,
-                          repo: item.repo,
-                          payload: item.payload,
-                          public: item.public,
-                          created_at: item.created_at
-                        });
-                        newEvent.save().catch(e => {
-                          throw new Error(e);
-                        });
-                      }
-                    });
-                  }
+                  await handleEvents(events, id => {
+                    console.log('id: ', id);
+                    eventIds.push(id);
+                  });
+                  // console.log('eventIds after `he`: ', eventIds);
+                  // console.log(eventIds);
                   res.send({
                     remaining,
-                    events
+                    eventIds
                   });
                 })
                 .catch(error => {

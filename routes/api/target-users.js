@@ -11,7 +11,6 @@ const _ = {
 const passport = require('passport');
 const jwtAuth = passport.authenticate('jwt', { session: false });
 const axios = require('axios');
-// const { ObjectID } = require('MongoDB');
 const User = require('../../models/User');
 const Repo = require('../../models/Repo');
 const Event = require('../../models/Event');
@@ -53,7 +52,6 @@ module.exports = app => {
       }
       TargetUser.findOne({ github_id: id })
         .then(targetUser => {
-          console.log('targetUser: ', targetUser);
           if (targetUser) {
             return res.status(400).json({ error: 'Record already exists' });
           }
@@ -72,7 +70,6 @@ module.exports = app => {
             .then(targetUser => {
               // Update Target User Events
               // GET targetUser.events_url
-              console.log(targetUser.events_url);
               axios
                 .get(targetUser.events_url)
                 .then(async response => {
@@ -88,30 +85,30 @@ module.exports = app => {
                       : false;
                   });
 
-                  // console.log(events);
-
                   const remaining = response.headers['x-ratelimit-remaining'];
                   let eventIds = [];
-                  // console.log('eventIds before `he`: ', eventIds);
                   // Add Events from above into MongoDB
                   await handleEvents(events, id => {
-                    console.log('id: ', id);
                     eventIds.push(id);
                   });
-                  // console.log('eventIds after `he`: ', eventIds);
-                  // console.log(eventIds);
+
+                  TargetUser.findByIdAndUpdate(
+                    targetUser._id,
+                    {
+                      $set: { events_list: [...eventIds] }
+                    },
+                    { new: true }
+                  ).catch(error => {
+                    res.send(500).send(error);
+                  });
+
                   res.send({
-                    remaining,
                     eventIds
                   });
                 })
                 .catch(error => {
-                  console.log(error);
                   res.status(422).send(error);
                 });
-
-              // findByIdAndUpdate ^ targetUser.events_list with IDs
-              // Event.findByIdandUpdate each event in GET request above
             })
             .catch(err => {
               res.status(400).send({ err });
